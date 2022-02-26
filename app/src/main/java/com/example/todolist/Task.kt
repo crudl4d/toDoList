@@ -3,17 +3,17 @@ package com.example.todolist
 import java.io.Serializable
 
 class Task: Serializable{
-    var task: String? = null
+    var text: String? = null
     var completed: Boolean = false
     var priority: String? = normal
 
     constructor(task: String){
-        this.task = task
+        this.text = task
     }
     constructor()
 
     constructor(task: String?, completed: Boolean, priority: String?) {
-        this.task = task
+        this.text = task
         this.completed = completed
         this.priority = priority
     }
@@ -25,8 +25,12 @@ class Task: Serializable{
         val high = "HIGH"
     }
 
-    override fun toString(): String {
-        return "$task&$completed&$priority"
+    fun serialize(): String {
+        return "${text!!.replace("&", " ")}&$completed&$priority"
+    }
+
+    override fun toString(): String{
+        return "$priority | $text"
     }
 
 }

@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.example.todolist.comparators.TaskPriorityComparator
 
 
 class MainActivity : AppCompatActivity() {
@@ -31,6 +32,8 @@ class MainActivity : AppCompatActivity() {
         }
         setupRemove()
         setupCompleted()
+        listItems.sortWith(TaskPriorityComparator())
+        adapter.notifyDataSetChanged()
     }
 
     override fun onDestroy() {
@@ -51,8 +54,9 @@ class MainActivity : AppCompatActivity() {
                 .setPositiveButton("Edit")
             { _, _ ->
                 startActivityForResult(Intent(this, FillTask::class.java).apply {
-                    putExtra("TASK", listItems.get(position).task)
+                    putExtra("TASK_TEXT", listItems.get(position).text)
                     putExtra("TASK_ID", position)
+                    putExtra("TASK_PRIORITY", listItems.get(position).priority)
                 }, 0)
             }.setNegativeButton("Delete"){
                 _, _ -> adapter.remove(adapter.getItem(position))
@@ -70,7 +74,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        listItems[data!!.getIntExtra("TASK_ID", -1)] = data.getSerializableExtra("TASK") as Task
+        listItems[data!!.getIntExtra("TASK_ID", -1)] = data.getSerializableExtra("TASK_TEXT") as Task
         adapter.notifyDataSetChanged()
     }
 
