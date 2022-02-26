@@ -18,11 +18,41 @@
         tools:layout_editor_absoluteX="60dp" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/fillSaveButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="43dp"
         android:text="Save"
         app:layout_constraintTop_toBottomOf="@+id/taskSecondActivity"
         tools:layout_editor_absoluteX="66dp" />
+
+    <RadioGroup
+        android:id="@+id/priority"
+        android:layout_width="194dp"
+        android:layout_height="144dp"
+        android:layout_marginStart="49dp"
+        android:layout_marginTop="59dp"
+        app:layout_constraintStart_toEndOf="@+id/fillSaveButton"
+        app:layout_constraintTop_toBottomOf="@+id/taskSecondActivity">
+
+        <RadioButton
+            android:id="@+id/highPriority"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="High" />
+
+        <RadioButton
+            android:id="@+id/normalPriority"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="Normal" />
+
+        <RadioButton
+            android:id="@+id/lowPriority"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Low" />
+    </RadioGroup>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
