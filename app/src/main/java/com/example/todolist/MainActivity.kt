@@ -2,6 +2,7 @@ package com.example.todolist
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -28,7 +29,26 @@ class MainActivity : AppCompatActivity() {
         setupAddItems()
         setupRemove()
         setupCompleted()
-        listItems.sortWith(TaskPriorityComparator())
+        findViewById<Spinner>(R.id.sort).onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                when(findViewById<Spinner>(R.id.sort).selectedItem){
+                    "Alphabetically" -> listItems.sortBy { task -> task.text }
+                    "Priority" -> listItems.sortWith(TaskPriorityComparator())
+                    "Completed" -> listItems.sortBy { task -> task.completed }
+                }
+                adapter.notifyDataSetChanged()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                return
+            }
+
+        }
     }
 
     override fun onDestroy() {
