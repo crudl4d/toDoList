@@ -17,7 +17,7 @@ class FillTask : AppCompatActivity() {
         findViewById<TextView>(R.id.taskSecondActivity).text = task
         findViewById<Button>(R.id.fillSaveButton).setOnClickListener { _ ->
             val returnIntent = Intent()
-            returnIntent.putExtra("TASK_TEXT", fillTask())
+            returnIntent.putExtra("TASK", fillTask())
             returnIntent.putExtra("TASK_ID", intent.getIntExtra("TASK_ID", -1))
             setResult(RESULT_OK, returnIntent)
             finishActivity(0)
@@ -42,5 +42,10 @@ class FillTask : AppCompatActivity() {
             Task.normal -> R.id.normalPriority
             else -> R.id.highPriority
         })
+    }
+
+    override fun onBackPressed() {
+        setResult(RESULT_CANCELED)
+        finish()
     }
 }

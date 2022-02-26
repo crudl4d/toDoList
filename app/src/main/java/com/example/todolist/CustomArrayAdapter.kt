@@ -29,7 +29,7 @@ class MyArrayAdapter(
 
     fun changeColor(position: Int, view: View?){
         val toDoTask = view!!.findViewById<CheckedTextView>(R.id.toDoTask)
-        toDoTask.text = items!![position]!!.text
+        toDoTask.text = items!![position]!!.toString()
         items[position]!!.completed = !items[position]!!.completed
         toDoTask.setBackgroundColor(if(items[position]!!.completed) Color.GREEN else Color.RED)
     }

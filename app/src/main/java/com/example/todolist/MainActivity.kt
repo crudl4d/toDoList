@@ -23,17 +23,12 @@ class MainActivity : AppCompatActivity() {
         populateTasks()
         toDoList = findViewById(R.id.toDoList)
         adapter = MyArrayAdapter(this, R.layout.list_item, listItems)
-        android.R.layout.simple_list_item_checked
         toDoList.adapter = adapter
 
-        val button = findViewById<Button>(R.id.addTask)
-        button.setOnClickListener {
-            addItems()
-        }
+        setupAddItems()
         setupRemove()
         setupCompleted()
         listItems.sortWith(TaskPriorityComparator())
-        adapter.notifyDataSetChanged()
     }
 
     override fun onDestroy() {
@@ -41,9 +36,12 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
     }
 
-    private fun addItems() {
-        val toAdd: String = findViewById<EditText>(R.id.taskDetails).text.toString()
-        adapter.add(Task(toAdd))
+    private fun setupAddItems() {
+        val button = findViewById<Button>(R.id.addTask)
+        button.setOnClickListener {
+            startActivityForResult(Intent(this, FillTask::class.java).apply {
+            }, 1)
+        }
     }
 
     private fun setupRemove(){
@@ -74,7 +72,13 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        listItems[data!!.getIntExtra("TASK_ID", -1)] = data.getSerializableExtra("TASK_TEXT") as Task
+        if(resultCode == RESULT_CANCELED)
+            return
+        if(requestCode == 1){
+            adapter.add(data!!.getSerializableExtra("TASK") as Task)
+            return
+        }
+        listItems[data!!.getIntExtra("TASK_ID", -1)] = data.getSerializableExtra("TASK") as Task
         adapter.notifyDataSetChanged()
     }
 
