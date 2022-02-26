@@ -2,11 +2,9 @@ package com.example.todolist
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.get
 
 
 class MainActivity : AppCompatActivity() {
@@ -21,9 +19,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         // ADD HERE
-        populate()
+        populateTasks()
         toDoList = findViewById(R.id.toDoList)
-        adapter = MyArrayAdapter(this, R.layout.listview_item, listItems)
+        adapter = MyArrayAdapter(this, R.layout.list_item, listItems)
+        android.R.layout.simple_list_item_checked
         toDoList.adapter = adapter
 
         val button = findViewById<Button>(R.id.addTask)
@@ -32,6 +31,11 @@ class MainActivity : AppCompatActivity() {
         }
         setupRemove()
         setupCompleted()
+    }
+
+    override fun onDestroy() {
+        adapter.saveToFile()
+        super.onDestroy()
     }
 
     private fun addItems() {
@@ -70,10 +74,19 @@ class MainActivity : AppCompatActivity() {
         adapter.notifyDataSetChanged()
     }
 
-    private fun populate(){
-        listItems.add(Task("Clean room"))
-        listItems.add(Task("Buy groceries"))
-        listItems.add(Task("Do homework"))
-        listItems.add(Task("Walk the dog"))
+    private fun populateTasks(){
+//        listItems.add(Task("Clean room"))
+//        listItems.add(Task("Buy groceries"))
+//        listItems.add(Task("Do homework"))
+//        listItems.add(Task("Walk the dog"))
+        val tasksFromFile = fileUtil.readFromFile(this)!!.trim()
+        val tasksSplit = tasksFromFile!!.split("\n")
+        for(task in tasksSplit){
+            try {
+                listItems.add(deserialize(task))
+            } catch (e: IndexOutOfBoundsException){
+                break
+            }
+        }
     }
 }

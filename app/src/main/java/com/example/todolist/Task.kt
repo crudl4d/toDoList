@@ -12,9 +12,30 @@ class Task: Serializable{
     }
     constructor()
 
+    constructor(task: String?, completed: Boolean, priority: String?) {
+        this.task = task
+        this.completed = completed
+        this.priority = priority
+    }
+
+
     companion object Priority {
         val low = "LOW"
         val normal = "NORMAL"
         val high = "HIGH"
     }
+
+    override fun toString(): String {
+        return "$task&$completed&$priority"
+    }
+
+}
+
+fun deserialize(task: String): Task{
+    val splitTask = task.split("&")
+    return Task(
+        splitTask[0],
+        splitTask[1].toBoolean(),
+        splitTask[2]
+    )
 }
