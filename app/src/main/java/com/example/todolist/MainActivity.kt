@@ -29,26 +29,7 @@ class MainActivity : AppCompatActivity() {
         setupAddItems()
         setupRemove()
         setupCompleted()
-        findViewById<Spinner>(R.id.sort).onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                when(findViewById<Spinner>(R.id.sort).selectedItem){
-                    "Alphabetically" -> listItems.sortBy { task -> task.text }
-                    "Priority" -> listItems.sortWith(TaskPriorityComparator())
-                    "Completed" -> listItems.sortBy { task -> task.completed }
-                }
-                adapter.notifyDataSetChanged()
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                return
-            }
-
-        }
+        setupSort()
     }
 
     override fun onDestroy() {
@@ -87,6 +68,28 @@ class MainActivity : AppCompatActivity() {
     private fun setupCompleted(){
         toDoList.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
             adapter.changeColor(position, view)
+        }
+    }
+
+    private fun setupSort(){
+        findViewById<Spinner>(R.id.sort).onItemSelectedListener = object: AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                when(findViewById<Spinner>(R.id.sort).selectedItem){
+                    "Alphabetically" -> listItems.sortBy { task -> task.text }
+                    "Priority" -> listItems.sortWith(TaskPriorityComparator())
+                    "Completed" -> listItems.sortBy { task -> task.completed }
+                }
+                adapter.notifyDataSetChanged()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                return
+            }
         }
     }
 
