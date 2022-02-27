@@ -6,20 +6,35 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.room.Room
 import com.example.todolist.comparators.TaskPriorityComparator
 
 
 class MainActivity : AppCompatActivity() {
 
-    private var listItems = ArrayList<Task>()
+    private var listItems = ArrayList<TaskData>()
     private lateinit var adapter: MyArrayAdapter
     private lateinit var toDoList: ListView
     private val fileUtil: FileUtil = FileUtil()
+    private lateinit var db: AppDatabase
+    private lateinit var taskDao: TaskDao
+
+    companion object{
+        private val EDIT_TASK = 0
+        private val ADD_TASK = 1
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "toDoDb"
+            ).allowMainThreadQueries()
+            .fallbackToDestructiveMigration()
+            .build()
+        taskDao = db.taskDao()
         // ADD HERE
         populateTasks()
         toDoList = findViewById(R.id.toDoList)
@@ -30,6 +45,7 @@ class MainActivity : AppCompatActivity() {
         setupRemove()
         setupCompleted()
         setupSort()
+
     }
 
     override fun onDestroy() {
@@ -41,7 +57,7 @@ class MainActivity : AppCompatActivity() {
         val button = findViewById<Button>(R.id.addTask)
         button.setOnClickListener {
             startActivityForResult(Intent(this, FillTask::class.java).apply {
-            }, 1)
+            }, ADD_TASK)
         }
     }
 
@@ -56,9 +72,11 @@ class MainActivity : AppCompatActivity() {
                     putExtra("TASK_TEXT", listItems.get(position).text)
                     putExtra("TASK_ID", position)
                     putExtra("TASK_PRIORITY", listItems.get(position).priority)
-                }, 0)
-            }.setNegativeButton("Delete"){
-                _, _ -> adapter.remove(adapter.getItem(position))
+                }, EDIT_TASK)
+            }.setNegativeButton("Delete"){ _, _ ->
+                    val toDelete = adapter.getItem(position)!!
+                    taskDao.delete(toDelete)
+                    adapter.remove(toDelete)
             }
                 .show()
             true
@@ -67,7 +85,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupCompleted(){
         toDoList.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
-            adapter.changeCompleted(position, view)
+            taskDao.changeCompleted(position, adapter.changeCompleted(position, view))
         }
     }
 
@@ -95,29 +113,42 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(resultCode == RESULT_CANCELED)
-            return
-        if(requestCode == 1){
-            adapter.insert(data!!.getSerializableExtra("TASK") as Task, 0)
+        if(resultCode == RESULT_CANCELED) {
             return
         }
-        listItems[data!!.getIntExtra("TASK_ID", -1)] = data.getSerializableExtra("TASK") as Task
+        var task = data!!.getSerializableExtra("TASK") as TaskData
+        task = TaskData(null, task.text, task.completed!!, task.priority, task.pictures)
+        if(requestCode == ADD_TASK){
+            taskDao.insert(task)
+            adapter.add(task)
+            return
+        }
+        val editedId = data.getIntExtra("TASK_ID", -1)
+        task.id = editedId
+        taskDao.update(task)
+        listItems[editedId] = data.getSerializableExtra("TASK") as TaskData
         adapter.notifyDataSetChanged()
     }
 
     private fun populateTasks(){
-//        listItems.add(Task("Clean room"))
-//        listItems.add(Task("Buy groceries"))
-//        listItems.add(Task("Do homework"))
-//        listItems.add(Task("Walk the dog"))
-        val tasksFromFile = fileUtil.readFromFile(this)!!.trim()
-        val tasksSplit = tasksFromFile!!.split("\n")
-        for(task in tasksSplit){
-            try {
-                listItems.add(deserialize(task))
-            } catch (e: IndexOutOfBoundsException){
-                break
-            }
-        }
+//        val tasksFromFile = fileUtil.readFromFile(this)!!.trim()
+//        val tasksSplit = tasksFromFile!!.split("\n")
+//        for(task in tasksSplit){
+//            try {
+//                listItems.add(deserialize(task))
+//            } catch (e: IndexOutOfBoundsException){
+//                break
+//            }
+//        }
+//        taskDao.deleteAll()
+//        taskDao.insert(TaskData("Clean room", true, "NORMAL", ""))
+//        taskDao.insert(TaskData("Buy groceries", true, "NORMAL", ""))
+//        taskDao.insert(TaskData("Do homework", true, "NORMAL", ""))
+//        taskDao.insert(TaskData("Walk the dog", true, "NORMAL", ""))
+//        listItems.add(TaskData("Clean room", true, "NORMAL", ""))
+//        listItems.add(TaskData("Buy groceries", true, "NORMAL", ""))
+//        listItems.add(TaskData("Do homework", true, "NORMAL", ""))
+//        listItems.add(TaskData("Walk the dog", true, "NORMAL", ""))
+        listItems.addAll(taskDao.getAll())
     }
 }

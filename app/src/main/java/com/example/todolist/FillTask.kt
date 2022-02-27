@@ -1,16 +1,25 @@
 package com.example.todolist
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.RadioGroup
 import android.widget.TextView
+import androidx.room.Room
 
 class FillTask : AppCompatActivity() {
+
+    val REQUEST_IMAGE_CAPTURE = 1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_fill_task2)
+
         ///////////////////
         val task = intent.getStringExtra("TASK_TEXT")
         setPriority(intent.getStringExtra("TASK_PRIORITY"))
@@ -20,13 +29,12 @@ class FillTask : AppCompatActivity() {
             returnIntent.putExtra("TASK", fillTask())
             returnIntent.putExtra("TASK_ID", intent.getIntExtra("TASK_ID", -1))
             setResult(RESULT_OK, returnIntent)
-            finishActivity(0)
             finish()
         }
     }
 
-    private fun fillTask(): Task{
-        val task = Task()
+    private fun fillTask(): TaskData{
+        val task = TaskData( "", true, null, null)
         task.text = findViewById<TextView>(R.id.taskSecondActivity).text.toString()
         when(findViewById<RadioGroup>(R.id.priority).checkedRadioButtonId){
             R.id.lowPriority -> task.priority = Task.low
@@ -38,8 +46,8 @@ class FillTask : AppCompatActivity() {
 
     private fun setPriority(priority: String?){
         findViewById<RadioGroup>(R.id.priority).check(when(priority){
-            Task.low -> R.id.lowPriority
-            Task.normal -> R.id.normalPriority
+            TaskData.low -> R.id.lowPriority
+            TaskData.normal -> R.id.normalPriority
             else -> R.id.highPriority
         })
     }
@@ -47,5 +55,22 @@ class FillTask : AppCompatActivity() {
     override fun onBackPressed() {
         setResult(RESULT_CANCELED)
         finish()
+    }
+
+    private fun dispatchTakePictureIntent() {
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        try {
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE)
+        } catch (e: ActivityNotFoundException) {
+            // display error state to the user
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            val imageBitmap = data!!.extras!!.get("data") as Bitmap
+            findViewById<ImageView>(R.id.imageView).setImageBitmap(imageBitmap)
+        }
     }
 }

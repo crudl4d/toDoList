@@ -7,13 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.CheckedTextView
-import androidx.appcompat.widget.DrawableUtils
 
 class MyArrayAdapter(
     context: Context?,
     resourceId: Int,
-    private val items: List<Task?>?
-) : ArrayAdapter<Task?>(context!!, resourceId, items!!){
+    private val items: List<TaskData?>?
+) : ArrayAdapter<TaskData?>(context!!, resourceId, items!!){
 
     val fileUtil: FileUtil = FileUtil()
 
@@ -22,26 +21,28 @@ class MyArrayAdapter(
         if (view == null) {
             view = LayoutInflater.from(context).inflate(R.layout.list_item, parent, false)
         }
-        checkUncheck(view!!.findViewById<CheckedTextView>(R.id.toDoTask), position)
+        checkUncheck(view!!.findViewById(R.id.toDoTask), position)
         return view
     }
 
-    fun changeCompleted(position: Int, view: View?) {
-        items?.get(position)!!.completed = !items[position]!!.completed
-        checkUncheck(view!!.findViewById<CheckedTextView>(R.id.toDoTask), position)
+    fun changeCompleted(position: Int, view: View?): Boolean{
+        items?.get(position)!!.completed = !items[position]!!.completed!!
+        return checkUncheck(view!!.findViewById(R.id.toDoTask), position)
     }
 
-    private fun checkUncheck(toDoTask: CheckedTextView, position: Int){
+    private fun checkUncheck(toDoTask: CheckedTextView, position: Int): Boolean{
         toDoTask.text = items!![position]!!.toString()
-        if(items?.get(position)!!.completed){
+        if(items[position]!!.completed!!){
             toDoTask.setBackgroundColor(Color.GREEN)
             toDoTask.isChecked = true
             toDoTask.setCheckMarkDrawable(android.R.drawable.checkbox_on_background)
+            return true
         }
         else {
             toDoTask.setBackgroundColor(Color.RED)
             toDoTask.isChecked = false
             toDoTask.setCheckMarkDrawable(android.R.drawable.checkbox_off_background)
+            return false
         }
     }
 
