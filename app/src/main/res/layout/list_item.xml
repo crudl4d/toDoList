@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_weight="1"
-    android:checkMark="?android:attr/textCheckMark"
+    android:checkMark="@android:drawable/checkbox_on_background"
+    android:checked="false"
     android:gravity="center_vertical"
     android:textAppearance="?android:attr/textAppearanceListItemSmall" />

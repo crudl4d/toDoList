@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupCompleted(){
         toDoList.onItemClickListener = AdapterView.OnItemClickListener { parent, view, position, id ->
-            adapter.changeColor(position, view)
+            adapter.changeCompleted(position, view)
         }
     }
 
@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity() {
         if(resultCode == RESULT_CANCELED)
             return
         if(requestCode == 1){
-            adapter.add(data!!.getSerializableExtra("TASK") as Task)
+            adapter.insert(data!!.getSerializableExtra("TASK") as Task, 0)
             return
         }
         listItems[data!!.getIntExtra("TASK_ID", -1)] = data.getSerializableExtra("TASK") as Task
