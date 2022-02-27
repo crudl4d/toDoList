@@ -1,15 +1,18 @@
 package com.example.todolist
 
+import android.graphics.Bitmap
 import java.io.Serializable
 
 class Task: Serializable{
     var text: String? = null
     var completed: Boolean = false
     var priority: String? = normal
+    var pictures: Array<Bitmap>? = null
 
     constructor(task: String){
         this.text = task
     }
+
     constructor()
 
     constructor(task: String?, completed: Boolean, priority: String?) {
@@ -33,13 +36,4 @@ class Task: Serializable{
         return "$priority | $text"
     }
 
-}
-
-fun deserialize(task: String): Task{
-    val splitTask = task.split("&")
-    return Task(
-        splitTask[0],
-        splitTask[1].toBoolean(),
-        splitTask[2]
-    )
 }
